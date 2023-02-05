@@ -1,0 +1,444 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:root@localhost/WPX"
+}
+
+model missionEx {
+  id Int @id @default(autoincrement())
+
+
+}
+
+model geoloc_cache {
+  id       Int     @id @default(autoincrement())
+  gmaps_id String? @unique
+  
+  name String
+  type String?
+
+  lat Float
+  lng Float
+  // radius Float @default(0.1) // In kilometers
+
+  // Maybe used later
+  geometry_bounds_ne_lat Float
+  geometry_bounds_ne_lng Float
+  geometry_bounds_sw_lat Float
+  geometry_bounds_sw_lng Float
+
+  // Alternative names
+  alternative_names geoloc_cache_alternative_names[]
+}
+model geoloc_cache_alternative_names {
+  id       Int     @id @default(autoincrement())
+
+  name String
+
+  geoloc_cache   geoloc_cache @relation(fields: [geoloc_cacheId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  geoloc_cacheId Int
+}
+
+
+
+
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  password String
+  salt     String
+  name     String?
+
+  driver             Driver? // If the user is a driver
+  operator           Operator? // If the user is an operator
+  represents_clients Client[]
+
+  // Security informations
+  userlogin UserLogin?
+
+  // Webhooks registered to this client "account"
+  webhook_registration webhook_registration[]
+}
+model Partner {
+  id Int @id @default(autoincrement())
+
+  drivers Driver[]
+  Mission Mission[]
+}
+model Driver {
+  id Int @id @default(autoincrement())
+
+  // Driver informations
+  civility  String       @default("Mr")
+  firstname String       @default("")
+  lastname  String       @default("")
+  picture   String       @default("")
+  phone     String       @default("")
+
+  language String @default("fr")
+
+
+  // Driver is a special kind of user. Kind of an extension
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int  @unique
+
+  // The company this driver is working for
+  Partner   Partner? @relation(fields: [partnerId], references: [id])
+  partnerId Int?
+
+  extended_infos DriverExtendedInfos?
+
+  contracts DriverContract[]
+
+  missions Mission[]
+}
+model DriverExtendedInfos {
+
+  id Int @id @default(autoincrement())
+
+  // Driver informations
+
+  address   String       @default("")
+  zip       String       @default("")
+  city      String       @default("")
+  country   String       @default("")
+
+  // Social informations
+
+  num_secu String @default("")
+
+  greencard          String    @default("")
+  greencard_validity DateTime? @default(now())
+
+  medical_last_visit DateTime? @default(now())
+  medical_next_visit DateTime? @default(now())
+
+  sejour          String    @default("")
+  sejour_validity DateTime? @default(now())
+
+  procard          String    @default("")
+  procard_validity DateTime? @default(now())
+
+  license           String    @default("")
+  licence_obtention DateTime? @default(now())
+  license_validity  DateTime? @default(now())
+
+  idcard          String    @default("")
+  idcard_validity DateTime? @default(now())
+
+  driver   Driver @relation(fields: [driverId], references: [id])
+  driverId Int    @unique
+}
+enum ContractType {
+  CDI
+  CDD
+  INTERIM
+  FREELANCE
+  OTHER
+}
+model DriverContract {
+  id Int @id @default(autoincrement())
+
+  // Is this contract the most recent one, and is it still active ?
+  is_active Boolean @default(false)
+
+  // Contract informations
+  is_internal   Boolean      @default(false)
+  contract_type ContractType @default(CDI)
+  coeff         String       @default("")
+
+  // Contract dates
+  start_date DateTime  @default(now())
+  end_date   DateTime? @default(now())
+
+  driver_comment   String @default("")
+  operator_comment String @default("")
+
+  doc_urls String[]
+
+  Driver   Driver @relation(fields: [driverId], references: [id])
+  driverId Int
+}
+// Sedan, minivan, etc
+model CarType {
+  id Int @id @default(autoincrement())
+
+  name String @unique
+
+  cars Car[]
+}
+model CarModel {
+  id Int @id @default(autoincrement())
+
+  name String @unique
+
+  cars Car[]
+}
+// A car that is available in theory
+model Car {
+  id Int @id @default(autoincrement())
+
+  // Car informations
+  name            String
+  brand           String @default("")
+  modelname       String @default("")
+  color           String @default("black") // black ?
+  immatriculation String @default("")
+  chassis_number  String @default("")
+  engine_number   String @default("") // One of those IDs can be used for tracking with Michelin if needed
+  picture         String @default("")
+
+  // Car type
+  type   CarType @relation(fields: [typeId], references: [id])
+  typeId Int
+
+  // Car model
+  model   CarModel @relation(fields: [modelId], references: [id])
+  modelId Int
+
+  // Missions done with this car
+  Mission Mission[]
+}
+
+// Represents a mission "step" (eg. "mission started")
+model MissionStep {
+  id      Int       @id @default(autoincrement())
+  comment String
+ // Mission Mission[]
+}
+
+// One historical step in the mission during its lifetime
+// (Useful if a problem happens)
+model MissionHistory {
+  id Int @id @default(autoincrement())
+
+  time      DateTime @default(now()) // When
+  actor     String   @default("") // Who (may be an user, or a tool, or anything else)
+  action    String   @default("") // What happened
+  value_old String   @default("") // What was the old value
+  value_new String   @default("") // What is the new value
+
+  Mission   Mission @relation(fields: [missionId], references: [id])
+  missionId Int
+}
+
+model MissionLocationStep {
+  id      Int       @id @default(autoincrement())
+  location String
+}
+
+model Mission {
+  id Int @id @default(autoincrement())
+
+  start_date DateTime  @default(now())
+  end_date   DateTime? @default(now())
+
+  // The list of all locations of the mission
+  location_steps String[]
+  
+  // Mission passengers
+  passengers Passenger[]
+
+  // Mission partner
+  partner   Partner? @relation(fields: [partnerId], references: [id])
+  partnerId Int?
+
+  // Mission driver
+  driver   Driver? @relation(fields: [driverId], references: [id])
+  driverId Int?
+
+  // Mission car
+  car   Car? @relation(fields: [carId], references: [id])
+  carId Int? 
+
+  // Mission folder
+  folder   MissionFolder? @relation(fields: [folderId], references: [id])
+  folderId Int?
+
+  // Mission operator
+  operator   Operator? @relation(fields: [operatorId], references: [id])
+  operatorId Int?
+
+  // Current step of the mission (accepted, started, and so on)
+  // status        MissionStep @relation(fields: [missionStepId], references: [id])
+  // missionStepId Int
+
+  // History of all changes done to this mission during its lifetime
+  history MissionHistory[]
+}
+
+// A user assigned to Operations (FO,Dispatch,Planif,Support,...)
+model Operator {
+  id Int @id @default(autoincrement())
+
+  test String @unique
+
+  // Operator is a special kind of user. Kind of an extension
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId  Int       @unique
+  Mission Mission[]
+}
+
+model Client {
+  id Int @id @default(autoincrement())
+
+  // Client informations
+  type  String
+  name  String
+  phone String @default("")
+  siret String @unique @default("")
+  iban  String @unique @default("")
+
+  creation_date DateTime @default(now())
+  update_date   DateTime @updatedAt
+
+  // Client customization
+  logo    String? // Url to logo
+  comment String  @default("")
+
+  // Link to the contact
+  contact User? @relation(fields: [userId], references: [id])
+  userId  Int?
+
+  facturation   ClientFacturation?
+  MissionFolder MissionFolder[]
+}
+
+model ClientFacturation {
+  id Int @id @default(autoincrement())
+
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId Int    @unique
+
+  address1 String @default("")
+  address2 String @default("")
+  address3 String @default("")
+
+  zip     String @default("")
+  city    String @default("")
+  country String @default("")
+
+  creation_date DateTime @default(now())
+  update_date   DateTime @updatedAt
+}
+
+model Passenger {
+  id Int @id @default(autoincrement())
+
+  name         String
+  phone        String @default("")
+  informations String @default("")
+
+  creation_date DateTime @default(now())
+  update_date   DateTime @updatedAt
+  Mission       Mission? @relation(fields: [missionId], references: [id])
+  missionId     Int?
+}
+
+model MissionFolder {
+  id Int @id @default(autoincrement())
+
+  name String
+
+  creation_date DateTime @default(now())
+  update_date   DateTime @updatedAt
+
+  // The owner of this folder
+  client   Client @relation(fields: [clientId], references: [id])
+  clientId Int
+
+  // All missions in this folder
+  missions Mission[]
+}
+
+model UserLogin {
+  id Int @id @default(autoincrement())
+
+  // Link to user
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+
+  last_login DateTime @default(now())
+  ip         String   @default("")
+
+  login_history UserLoginHistory[]
+
+  failed_login_attempts Int @default(0)
+
+  // Additional security measures (if needed)
+  is_account_locked    Boolean          @default(false)
+  account_locked_until DateTime?
+  restrict_ip_address  Boolean          @default(false)
+  allowed_ips          UserAllowedIps[]
+  lock_after_attempts  Int              @default(0) // 0 to disable
+  requires_2fa         Boolean          @default(false)
+
+  // Honeypot
+  honeypot_is_account_compromised Boolean @default(false)
+}
+
+model UserAllowedIps {
+  id Int @id @default(autoincrement())
+
+  // Link to user
+  userlogin UserLogin @relation(fields: [userId], references: [id])
+  userId    Int       @unique
+
+  ip String
+}
+
+model UserLoginHistory {
+  id Int @id @default(autoincrement())
+
+  // Link to user
+  userlogin UserLogin @relation(fields: [userId], references: [id])
+  userId    Int
+
+  login_date DateTime @default(now())
+  ip         String   @default("")
+  success    Boolean  @default(false)
+  reason     String   @default("")
+}
+
+model csrf {
+  id Int @id @default(autoincrement())
+
+  token      String
+  ip         String
+  targetpage String
+
+  date DateTime @default(now())
+}
+
+// Model used to store webhooks, used by "Webhook" class
+
+model webhook_event {
+  id Int @id @default(autoincrement())
+
+  // The name of the event, like on_mission_new
+  name String @unique @default("")
+
+  // The event description, like "When a new mission is sent into wayplan for manual validation"
+  description String @default("")
+
+  registrations webhook_registration[]
+}
+
+model webhook_registration {
+  id Int @id @default(autoincrement())
+
+  destination String @default("")
+
+  webhook_event   webhook_event @relation(fields: [webhook_eventId], references: [id])
+  webhook_eventId Int
+
+  author User @relation(fields: [userId], references: [id])
+  userId Int
+}
+

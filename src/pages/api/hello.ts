@@ -1,13 +1,18 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
+import { location_from_name } from '@/core/maps'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 type Data = {
-  name: string
+  loc: {
+    lat: number,
+    lng: number
+  }
 }
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  res.status(200).json({ name: 'John Doe' })
+  const loc = await location_from_name(req.query.name as string);
+  res.status(200).json({ loc })
 }
