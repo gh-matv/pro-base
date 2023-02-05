@@ -10,12 +10,6 @@ datasource db {
   url      = "postgresql://postgres:root@localhost/WPX"
 }
 
-model missionEx {
-  id Int @id @default(autoincrement())
-
-
-}
-
 model geoloc_cache {
   id       Int     @id @default(autoincrement())
   gmaps_id String? @unique
@@ -44,7 +38,6 @@ model geoloc_cache_alternative_names {
   geoloc_cache   geoloc_cache @relation(fields: [geoloc_cacheId], references: [id], onUpdate: Cascade, onDelete: Cascade)
   geoloc_cacheId Int
 }
-
 
 
 
