@@ -12,6 +12,8 @@ type Data = {
     }
 }
 
+// Return all missions whose start date is in the future, up to 3 days in the future
+// We want all those missions so we can store them on the client in case the connection is lost
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse<any>
@@ -21,6 +23,10 @@ export default async function handler(
         where: {
             id: {
                 gte: 1
+            },
+            start_date: {
+                gte: new Date(),
+                lte: new Date(new Date().getTime() + 3 * 24 * 60 * 60 * 1000)
             }
         },
     });

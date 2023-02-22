@@ -10,26 +10,27 @@
     "test": "jest"
   },
   "dependencies": {
-
+    "@apollo/client": "^3.7.9",
+    "@apollo/server": "^4.4.0",
+    "@as-integrations/next": "^1.2.0",
     "@googlemaps/google-maps-services-js": "^3.3.26",
     "@next/font": "13.1.6",
-    "@prisma/client": "^4.9.0",
+    "@prisma/client": "^4.10.1",
     "@turf/turf": "^6.5.0",
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
-
     "eslint": "8.33.0",
     "eslint-config-next": "13.1.6",
+    "graphql": "^16.6.0",
     "next": "13.1.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-
     "typescript": "4.9.5"
   },
   "devDependencies": {
     "@playwright/test": "^1.30.0",
-    "prisma": "^4.9.0",
+    "prisma": "^4.10.1",
     "ts-node": "^10.9.1"
   }
 }

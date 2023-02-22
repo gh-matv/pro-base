@@ -1,0 +1,46 @@
+
+type Mission { 
+  id: ID!
+  description: String!
+  status: String!
+  startDate: String!
+  endDate: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+input MissionUpdate {
+  description: String
+  startDate: String
+  endDate: String
+}
+
+# All the fields we can use to filter the missions
+input MissionQuery {
+  id: ID
+  status: String
+  missions_from: String
+  missions_until: String
+}
+
+type Location {
+  id: ID!
+  name: String!
+  lat: Float!
+  lng: Float!
+}
+
+type Query {
+
+  missions(q:MissionQuery): [Mission!]!
+  mission(id: ID!): Mission
+
+  location(name: String!): Location
+}
+
+type Mutation {
+  #createMission(description: String!, startDate: String!, endDate: String!): Mission
+  updateMission(id: ID!, update: MissionUpdate!): Mission
+  #deleteMission(id: ID!): Mission
+}
+

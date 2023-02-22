@@ -1,6 +1,5 @@
 import { Client, LatLngLiteral } from "@googlemaps/google-maps-services-js";
 import { PrismaClient } from "@prisma/client";
-import { distance } from "@turf/turf";
 
 const client = new Client({});
 const prisma = new PrismaClient();
