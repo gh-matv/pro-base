@@ -16,7 +16,6 @@ export type Scalars = {
 
 export type Location = {
   __typename?: 'Location';
-  id: Scalars['ID'];
   lat: Scalars['Float'];
   lng: Scalars['Float'];
   name: Scalars['String'];
@@ -24,13 +23,10 @@ export type Location = {
 
 export type Mission = {
   __typename?: 'Mission';
-  createdAt: Scalars['String'];
-  description: Scalars['String'];
   endDate: Scalars['String'];
   id: Scalars['ID'];
   startDate: Scalars['String'];
   status: Scalars['String'];
-  updatedAt: Scalars['String'];
 };
 
 export type MissionQuery = {
@@ -41,8 +37,8 @@ export type MissionQuery = {
 };
 
 export type MissionUpdate = {
-  description?: InputMaybe<Scalars['String']>;
   endDate?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
   startDate?: InputMaybe<Scalars['String']>;
 };
 
@@ -53,7 +49,6 @@ export type Mutation = {
 
 
 export type MutationUpdateMissionArgs = {
-  id: Scalars['ID'];
   update: MissionUpdate;
 };
 
@@ -175,7 +170,6 @@ export type ResolversParentTypes = {
 };
 
 export type LocationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Location'] = ResolversParentTypes['Location']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   lng?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -183,18 +177,15 @@ export type LocationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type MissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mission'] = ResolversParentTypes['Mission']> = {
-  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   endDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   startDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  updateMission?: Resolver<Maybe<ResolversTypes['Mission']>, ParentType, ContextType, RequireFields<MutationUpdateMissionArgs, 'id' | 'update'>>;
+  updateMission?: Resolver<Maybe<ResolversTypes['Mission']>, ParentType, ContextType, RequireFields<MutationUpdateMissionArgs, 'update'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {

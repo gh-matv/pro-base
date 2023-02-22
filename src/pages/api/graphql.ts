@@ -8,6 +8,7 @@ const { readFileSync } = fs;
 
 import { PrismaClient } from '@prisma/client'
 import { location_from_name } from '@/core/maps';
+import { Location, Mission, MissionQuery, MissionUpdate } from '@/generated/graphql';
 const prisma = new PrismaClient()
 
 const resolvers = {
@@ -20,7 +21,7 @@ const resolvers = {
 	Query: {
 
 		mission: async (_: any, { id }: {id:string}) => await prisma.mission.findUnique({ where: { id: parseInt(id) } }),
-		missions: async (_:any, params: any) => {
+		missions: async (_:any, params: {q: MissionQuery}) => {
 			const { q } = params;
 			return await prisma.mission.findMany({
 				where: {
@@ -31,14 +32,28 @@ const resolvers = {
 			})
 		},
 
-		location: async (_: any, { name }: {name:string}) => location_from_name(name)
+		location: async (_: any, { name }: {name:string}): Promise<Location> => location_from_name(name)
 
 	},
 
 	Mutation: {
 
-		updateMission: async (_: any, params: any) => {
-			console.log(params)
+		updateMission: async (_: any, params: {update: MissionUpdate}): Promise<Mission> => {
+			const { update } = params;
+			await prisma.mission.update({
+				where: { id: parseInt(update.id) },
+				data: {
+					start_date: update.startDate ? new Date(update.startDate) : undefined,
+					end_date: update.endDate ? new Date(update.endDate) : undefined,
+				}
+			})
+			const v = await prisma.mission.findUnique({ where: { id: parseInt(update.id) } })
+			return {
+				id: ""+(v?.id??""),
+				startDate: v?.start_date.toUTCString() ?? "",
+				endDate: v?.end_date?.toUTCString() ?? "",
+				status: "active"
+			}
 		}
 
 	}

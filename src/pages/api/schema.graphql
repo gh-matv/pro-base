@@ -1,16 +1,13 @@
 
 type Mission { 
   id: ID!
-  description: String!
   status: String!
   startDate: String!
   endDate: String!
-  createdAt: String!
-  updatedAt: String!
 }
 
 input MissionUpdate {
-  description: String
+  id: ID!
   startDate: String
   endDate: String
 }
@@ -24,7 +21,6 @@ input MissionQuery {
 }
 
 type Location {
-  id: ID!
   name: String!
   lat: Float!
   lng: Float!
@@ -40,7 +36,7 @@ type Query {
 
 type Mutation {
   #createMission(description: String!, startDate: String!, endDate: String!): Mission
-  updateMission(id: ID!, update: MissionUpdate!): Mission
+  updateMission(update: MissionUpdate!): Mission
   #deleteMission(id: ID!): Mission
 }
 
