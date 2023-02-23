@@ -29,19 +29,6 @@ export type Mission = {
   status: Scalars['String'];
 };
 
-export type MissionQuery = {
-  id?: InputMaybe<Scalars['ID']>;
-  missions_from?: InputMaybe<Scalars['String']>;
-  missions_until?: InputMaybe<Scalars['String']>;
-  status?: InputMaybe<Scalars['String']>;
-};
-
-export type MissionUpdate = {
-  endDate?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
-  startDate?: InputMaybe<Scalars['String']>;
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   updateMission?: Maybe<Mission>;
@@ -49,14 +36,15 @@ export type Mutation = {
 
 
 export type MutationUpdateMissionArgs = {
-  update: MissionUpdate;
+  endDate?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  startDate?: InputMaybe<Scalars['String']>;
 };
 
 export type Query = {
   __typename?: 'Query';
   location?: Maybe<Location>;
-  mission?: Maybe<Mission>;
-  missions: Array<Mission>;
+  missions?: Maybe<Array<Maybe<Mission>>>;
 };
 
 
@@ -65,13 +53,11 @@ export type QueryLocationArgs = {
 };
 
 
-export type QueryMissionArgs = {
-  id: Scalars['ID'];
-};
-
-
 export type QueryMissionsArgs = {
-  q?: InputMaybe<MissionQuery>;
+  date_earlier_than?: InputMaybe<Scalars['String']>;
+  date_later_than?: InputMaybe<Scalars['String']>;
+  id: Scalars['ID'];
+  status?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -148,8 +134,6 @@ export type ResolversTypes = {
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Location: ResolverTypeWrapper<Location>;
   Mission: ResolverTypeWrapper<Mission>;
-  MissionQuery: MissionQuery;
-  MissionUpdate: MissionUpdate;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
@@ -162,8 +146,6 @@ export type ResolversParentTypes = {
   ID: Scalars['ID'];
   Location: Location;
   Mission: Mission;
-  MissionQuery: MissionQuery;
-  MissionUpdate: MissionUpdate;
   Mutation: {};
   Query: {};
   String: Scalars['String'];
@@ -185,13 +167,12 @@ export type MissionResolvers<ContextType = any, ParentType extends ResolversPare
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  updateMission?: Resolver<Maybe<ResolversTypes['Mission']>, ParentType, ContextType, RequireFields<MutationUpdateMissionArgs, 'update'>>;
+  updateMission?: Resolver<Maybe<ResolversTypes['Mission']>, ParentType, ContextType, RequireFields<MutationUpdateMissionArgs, 'id'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   location?: Resolver<Maybe<ResolversTypes['Location']>, ParentType, ContextType, RequireFields<QueryLocationArgs, 'name'>>;
-  mission?: Resolver<Maybe<ResolversTypes['Mission']>, ParentType, ContextType, RequireFields<QueryMissionArgs, 'id'>>;
-  missions?: Resolver<Array<ResolversTypes['Mission']>, ParentType, ContextType, Partial<QueryMissionsArgs>>;
+  missions?: Resolver<Maybe<Array<Maybe<ResolversTypes['Mission']>>>, ParentType, ContextType, RequireFields<QueryMissionsArgs, 'id'>>;
 };
 
 export type Resolvers<ContextType = any> = {
