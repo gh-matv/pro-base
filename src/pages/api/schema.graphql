@@ -4,6 +4,9 @@ type Mission {
   status: String!
   startDate: String!
   endDate: String!
+
+  locationSteps: [Location]
+  contractor: Contractor
 }
 
 type Location {
@@ -12,9 +15,16 @@ type Location {
   lng: Float!
 }
 
+type Contractor {
+  id: ID!
+  name: String
+  email: String
+  phone: String
+}
+
 type Query {
 
-  missions(id: ID!, status: String, date_later_than: String, date_earlier_than: String): [Mission]
+  missions(id: ID, status: String, date_later_than: String, date_earlier_than: String): [Mission]
 
   location(name: String!): Location
 }

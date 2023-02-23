@@ -14,6 +14,14 @@ export type Scalars = {
   Float: number;
 };
 
+export type Contractor = {
+  __typename?: 'Contractor';
+  email?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+};
+
 export type Location = {
   __typename?: 'Location';
   lat: Scalars['Float'];
@@ -23,8 +31,10 @@ export type Location = {
 
 export type Mission = {
   __typename?: 'Mission';
+  contractor?: Maybe<Contractor>;
   endDate: Scalars['String'];
   id: Scalars['ID'];
+  locationSteps?: Maybe<Array<Maybe<Location>>>;
   startDate: Scalars['String'];
   status: Scalars['String'];
 };
@@ -56,7 +66,7 @@ export type QueryLocationArgs = {
 export type QueryMissionsArgs = {
   date_earlier_than?: InputMaybe<Scalars['String']>;
   date_later_than?: InputMaybe<Scalars['String']>;
-  id: Scalars['ID'];
+  id?: InputMaybe<Scalars['ID']>;
   status?: InputMaybe<Scalars['String']>;
 };
 
@@ -130,6 +140,7 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  Contractor: ResolverTypeWrapper<Contractor>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Location: ResolverTypeWrapper<Location>;
@@ -142,6 +153,7 @@ export type ResolversTypes = {
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
+  Contractor: Contractor;
   Float: Scalars['Float'];
   ID: Scalars['ID'];
   Location: Location;
@@ -149,6 +161,14 @@ export type ResolversParentTypes = {
   Mutation: {};
   Query: {};
   String: Scalars['String'];
+};
+
+export type ContractorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Contractor'] = ResolversParentTypes['Contractor']> = {
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type LocationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Location'] = ResolversParentTypes['Location']> = {
@@ -159,8 +179,10 @@ export type LocationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type MissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mission'] = ResolversParentTypes['Mission']> = {
+  contractor?: Resolver<Maybe<ResolversTypes['Contractor']>, ParentType, ContextType>;
   endDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  locationSteps?: Resolver<Maybe<Array<Maybe<ResolversTypes['Location']>>>, ParentType, ContextType>;
   startDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -172,10 +194,11 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   location?: Resolver<Maybe<ResolversTypes['Location']>, ParentType, ContextType, RequireFields<QueryLocationArgs, 'name'>>;
-  missions?: Resolver<Maybe<Array<Maybe<ResolversTypes['Mission']>>>, ParentType, ContextType, RequireFields<QueryMissionsArgs, 'id'>>;
+  missions?: Resolver<Maybe<Array<Maybe<ResolversTypes['Mission']>>>, ParentType, ContextType, Partial<QueryMissionsArgs>>;
 };
 
 export type Resolvers<ContextType = any> = {
+  Contractor?: ContractorResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
   Mission?: MissionResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;

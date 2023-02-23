@@ -5,6 +5,8 @@ import {
     QueryResolvers,
     QueryMissionsArgs,
     MutationUpdateMissionArgs,
+    ContractorResolvers,
+    Contractor,
 } from "@/generated/graphql"
 
 const prisma = new PrismaClient()
@@ -20,9 +22,32 @@ export default class Mission_Internal {
         public end_date: Date | null
     ) { }
 
-    static GqlResolvers : {Mission: MissionResolvers<any, GqlMission>} = {
+    static GqlResolvers : {Mission: MissionResolvers<any, GqlMission>, Contractor: ContractorResolvers<any, Contractor>} = {
+
+        Contractor: {
+            name: (parent: any, params, context, infos) => {
+                console.log("Returning name", parent, context, infos)
+                return "name"
+            },
+            email: (parent: any, params, context, infos) => {
+                console.log("Returning email", parent, context, infos)
+                context.xd = "test"
+                return "email"
+            },
+            phone: (parent: any, params, context, infos) => {
+                console.log("Returning phone", parent, context, infos)
+                if((context.xd?.indexOf("test") ?? -1) > -1) {
+                    return "phoneXC"
+                }
+                return "phone"
+            }
+        },
+
         Mission: {
-            status: () => 'active',
+            status: (parent: any) => 'active',
+            contractor: (parent: any, b, c) => {
+                return ({id: "1"});
+            }
         }
     }
 
@@ -79,8 +104,6 @@ export default class Mission_Internal {
     }
 
     static async update_from_gql_update(m: MutationUpdateMissionArgs): Promise<Mission_Internal> {
-
-        console.log("ok")
         
         const p = await prisma.mission.update({
             where: { id: parseInt(m.id) },

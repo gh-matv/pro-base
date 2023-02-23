@@ -39,8 +39,6 @@ model geoloc_cache_alternative_names {
   geoloc_cacheId Int
 }
 
-
-
 model User {
   id       Int     @id @default(autoincrement())
   email    String  @unique
