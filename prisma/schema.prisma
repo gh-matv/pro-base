@@ -29,6 +29,9 @@ model geoloc_cache {
 
   // Alternative names
   alternative_names geoloc_cache_alternative_names[]
+
+  // Refs
+  missions_ MissionLocationStep[]
 }
 model geoloc_cache_alternative_names {
   id       Int     @id @default(autoincrement())
@@ -58,6 +61,8 @@ model User {
 }
 model Partner {
   id Int @id @default(autoincrement())
+
+  name String @unique
 
   drivers Driver[]
   Mission Mission[]
@@ -221,7 +226,13 @@ model MissionHistory {
 
 model MissionLocationStep {
   id      Int       @id @default(autoincrement())
-  location String
+  index  Int       @default(0)
+
+  location geoloc_cache @relation(fields: [location_id], references: [id])
+  location_id Int
+
+  Mission   Mission @relation(fields: [missionId], references: [id])
+  missionId Int
 }
 
 model Mission {
@@ -231,7 +242,7 @@ model Mission {
   end_date   DateTime? @default(now())
 
   // The list of all locations of the mission
-  location_steps String[]
+  location_steps MissionLocationStep[]
   
   // Mission passengers
   passengers Passenger[]

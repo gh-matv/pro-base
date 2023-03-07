@@ -5,7 +5,7 @@ type Mission {
   startDate: String!
   endDate: String!
 
-  locationSteps: [Location]
+  locationSteps(index: ID): [Location]
   contractor: Contractor
 }
 

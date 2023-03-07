@@ -39,6 +39,11 @@ export type Mission = {
   status: Scalars['String'];
 };
 
+
+export type MissionLocationStepsArgs = {
+  index?: InputMaybe<Scalars['ID']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   updateMission?: Maybe<Mission>;
@@ -182,7 +187,7 @@ export type MissionResolvers<ContextType = any, ParentType extends ResolversPare
   contractor?: Resolver<Maybe<ResolversTypes['Contractor']>, ParentType, ContextType>;
   endDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  locationSteps?: Resolver<Maybe<Array<Maybe<ResolversTypes['Location']>>>, ParentType, ContextType>;
+  locationSteps?: Resolver<Maybe<Array<Maybe<ResolversTypes['Location']>>>, ParentType, ContextType, Partial<MissionLocationStepsArgs>>;
   startDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "codegen": "graphql-codegen --config codegen.ts"
+    "codegen": "graphql-codegen --config codegen.ts",
+    "go": "yarn codegen && yarn prisma generate && yarn prisma db push && yarn dev"
   },
   "dependencies": {
     "@apollo/client": "^3.7.9",
@@ -16,7 +17,7 @@
     "@as-integrations/next": "^1.2.0",
     "@googlemaps/google-maps-services-js": "^3.3.26",
     "@next/font": "13.1.6",
-    "@prisma/client": "^4.10.1",
+    "@prisma/client": "^4.11.0",
     "@turf/turf": "^6.5.0",
     "@types/node": "18.11.18",
     "@types/react": "18.0.27",

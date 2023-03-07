@@ -7,6 +7,7 @@ import {
     MutationUpdateMissionArgs,
     ContractorResolvers,
     Contractor,
+    Mission,
 } from "@/generated/graphql"
 
 const prisma = new PrismaClient()
@@ -37,7 +38,7 @@ export default class Mission_Internal {
             phone: (parent: any, params, context, infos) => {
                 console.log("Returning phone", parent, context, infos)
                 if((context.xd?.indexOf("test") ?? -1) > -1) {
-                    return "phoneXC"
+                    return "phone" + /* random number */ Math.floor(Math.random() * 1000)
                 }
                 return "phone"
             }
@@ -45,8 +46,18 @@ export default class Mission_Internal {
 
         Mission: {
             status: (parent: any) => 'active',
-            contractor: (parent: any, b, c) => {
-                return ({id: "1"});
+            contractor: (parent: Mission, b, c) => {
+                return ({id: parent.contractor?.id || "0"});
+            },
+            locationSteps: async (parent: Mission, params, context, infos) => {
+                console.log("Returning locationSteps", parent, context, infos)
+                return await prisma.missionLocationStep.findMany({
+                    where: {
+                        missionId: parseInt(parent.id)
+                    },
+                    select: {
+                        location: true,
+                }}).then(steps => steps.map(s => s.location))
             }
         }
     }
@@ -77,12 +88,11 @@ export default class Mission_Internal {
             id: parseInt(m.id),
             start_date: m.start_date,
             end_date: m.end_date,
-            location_steps: [],
             partnerId: 0,
             carId: 0,
             driverId: 0,
             folderId: 0,
-            operatorId: 0
+            operatorId: 0,
         }
     }
 
