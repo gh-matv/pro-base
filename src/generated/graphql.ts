@@ -22,6 +22,14 @@ export type Contractor = {
   phone?: Maybe<Scalars['String']>;
 };
 
+export type Driver = {
+  __typename?: 'Driver';
+  email?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+};
+
 export type Location = {
   __typename?: 'Location';
   lat: Scalars['Float'];
@@ -32,11 +40,14 @@ export type Location = {
 export type Mission = {
   __typename?: 'Mission';
   contractor?: Maybe<Contractor>;
+  driver?: Maybe<Driver>;
   endDate: Scalars['String'];
   id: Scalars['ID'];
   locationSteps?: Maybe<Array<Maybe<Location>>>;
+  passengers?: Maybe<Array<Maybe<Passenger>>>;
   startDate: Scalars['String'];
   status: Scalars['String'];
+  type: Scalars['String'];
 };
 
 
@@ -56,10 +67,22 @@ export type MutationUpdateMissionArgs = {
   startDate?: InputMaybe<Scalars['String']>;
 };
 
+export type Passenger = {
+  __typename?: 'Passenger';
+  email?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  informations?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
+};
+
 export type Query = {
   __typename?: 'Query';
+  allIncomingMissions?: Maybe<Array<Maybe<Mission>>>;
   location?: Maybe<Location>;
   missions?: Maybe<Array<Maybe<Mission>>>;
+  passenger?: Maybe<Passenger>;
+  passengers?: Maybe<Array<Maybe<Passenger>>>;
 };
 
 
@@ -73,6 +96,17 @@ export type QueryMissionsArgs = {
   date_later_than?: InputMaybe<Scalars['String']>;
   id?: InputMaybe<Scalars['ID']>;
   status?: InputMaybe<Scalars['String']>;
+};
+
+
+export type QueryPassengerArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type QueryPassengersArgs = {
+  id?: InputMaybe<Scalars['ID']>;
+  name?: InputMaybe<Scalars['String']>;
 };
 
 
@@ -146,11 +180,13 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = {
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Contractor: ResolverTypeWrapper<Contractor>;
+  Driver: ResolverTypeWrapper<Driver>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Location: ResolverTypeWrapper<Location>;
   Mission: ResolverTypeWrapper<Mission>;
   Mutation: ResolverTypeWrapper<{}>;
+  Passenger: ResolverTypeWrapper<Passenger>;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
 };
@@ -159,16 +195,26 @@ export type ResolversTypes = {
 export type ResolversParentTypes = {
   Boolean: Scalars['Boolean'];
   Contractor: Contractor;
+  Driver: Driver;
   Float: Scalars['Float'];
   ID: Scalars['ID'];
   Location: Location;
   Mission: Mission;
   Mutation: {};
+  Passenger: Passenger;
   Query: {};
   String: Scalars['String'];
 };
 
 export type ContractorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Contractor'] = ResolversParentTypes['Contractor']> = {
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type DriverResolvers<ContextType = any, ParentType extends ResolversParentTypes['Driver'] = ResolversParentTypes['Driver']> = {
   email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -185,11 +231,14 @@ export type LocationResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type MissionResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mission'] = ResolversParentTypes['Mission']> = {
   contractor?: Resolver<Maybe<ResolversTypes['Contractor']>, ParentType, ContextType>;
+  driver?: Resolver<Maybe<ResolversTypes['Driver']>, ParentType, ContextType>;
   endDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   locationSteps?: Resolver<Maybe<Array<Maybe<ResolversTypes['Location']>>>, ParentType, ContextType, Partial<MissionLocationStepsArgs>>;
+  passengers?: Resolver<Maybe<Array<Maybe<ResolversTypes['Passenger']>>>, ParentType, ContextType>;
   startDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -197,16 +246,30 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   updateMission?: Resolver<Maybe<ResolversTypes['Mission']>, ParentType, ContextType, RequireFields<MutationUpdateMissionArgs, 'id'>>;
 };
 
+export type PassengerResolvers<ContextType = any, ParentType extends ResolversParentTypes['Passenger'] = ResolversParentTypes['Passenger']> = {
+  email?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  informations?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+  allIncomingMissions?: Resolver<Maybe<Array<Maybe<ResolversTypes['Mission']>>>, ParentType, ContextType>;
   location?: Resolver<Maybe<ResolversTypes['Location']>, ParentType, ContextType, RequireFields<QueryLocationArgs, 'name'>>;
   missions?: Resolver<Maybe<Array<Maybe<ResolversTypes['Mission']>>>, ParentType, ContextType, Partial<QueryMissionsArgs>>;
+  passenger?: Resolver<Maybe<ResolversTypes['Passenger']>, ParentType, ContextType, RequireFields<QueryPassengerArgs, 'id'>>;
+  passengers?: Resolver<Maybe<Array<Maybe<ResolversTypes['Passenger']>>>, ParentType, ContextType, Partial<QueryPassengersArgs>>;
 };
 
 export type Resolvers<ContextType = any> = {
   Contractor?: ContractorResolvers<ContextType>;
+  Driver?: DriverResolvers<ContextType>;
   Location?: LocationResolvers<ContextType>;
   Mission?: MissionResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  Passenger?: PassengerResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
 };
 

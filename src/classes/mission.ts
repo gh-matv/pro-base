@@ -1,6 +1,7 @@
-import { Mission as PrismaMission, PrismaClient } from "@prisma/client"
+import { Driver as PrismaDriver, Mission as PrismaMission, User as PrismaUser, Passenger as PrismaPassenger, PrismaClient } from "@prisma/client"
 import {
     Mission as GqlMission,
+    Driver as GqlDriver,
     MissionResolvers,
     QueryResolvers,
     QueryMissionsArgs,
@@ -9,6 +10,8 @@ import {
     Contractor,
     Mission,
 } from "@/generated/graphql"
+import Driver_Internal from "./driver"
+import Passenger_Internal from "./passenger"
 
 const prisma = new PrismaClient()
 
@@ -20,7 +23,12 @@ export default class Mission_Internal {
     constructor(
         public id: string,
         public start_date: Date,
-        public end_date: Date | null
+        public end_date: Date | null,
+
+        public type: string = "TA",
+        public driver: Driver_Internal | null = null,
+        public passengers: Passenger_Internal[] = [],
+
     ) { }
 
     static GqlResolvers : {Mission: MissionResolvers<any, GqlMission>, Contractor: ContractorResolvers<any, Contractor>} = {
@@ -68,6 +76,26 @@ export default class Mission_Internal {
 
         missions: async (_:any, params: QueryMissionsArgs, context: any) => 
             (await Mission_Internal.search_from_gql_query(params)).map(m => m.to_gql()),
+        allIncomingMissions: async (_:any, params: QueryMissionsArgs, context: any) =>
+            ((await prisma.mission.findMany({
+                where: {
+                    OR: [
+                        { start_date: { gte: new Date() } },
+                        { end_date: { gte: new Date() } },
+                    ]
+                },
+                include: {
+                    location_steps: true,
+                    car: true,
+                    driver: {
+                        include: {
+                            user: true,
+                        }
+                    },
+                    partner: true,
+                    passengers: true,
+                }
+            }).then(ms => ms.map(m => Mission_Internal.from_prisma(m)))).map(m => m.to_gql())),
     }
 
     static GqlMutations = {
@@ -75,11 +103,19 @@ export default class Mission_Internal {
 			(await Mission_Internal.update_from_gql_update(params)).to_gql(),
     }
 
-    static from_prisma(m: PrismaMission): Mission_Internal {
+    static from_prisma(
+        m: PrismaMission
+            & (({driver?: PrismaDriver & ({user?: PrismaUser | null} | null)}) | null) // Can include "driver" that could include "user" but doesnt have to.
+            & ({passengers?: PrismaPassenger[]} | null | undefined) // Can include "passengers"
+            ) : Mission_Internal
+    {
         return new Mission_Internal(
             m.id.toString(),
             m.start_date,
-            m.end_date
+            m.end_date,
+            m.type,
+            m.driver ? Driver_Internal.from_prisma(m.driver, m?.driver?.user) : null,
+            m.passengers ? m.passengers.map(p => Passenger_Internal.from_prisma(p)) : [],
         )
     }
 
@@ -93,6 +129,7 @@ export default class Mission_Internal {
             driverId: 0,
             folderId: 0,
             operatorId: 0,
+            type: m.type,
         }
     }
 
@@ -101,7 +138,10 @@ export default class Mission_Internal {
             id: this.id,
             startDate:this.start_date.toUTCString(),
             endDate: this.end_date?.toUTCString() ?? "",
-            status: "active"
+            type: this.type,
+            status: "active",
+            driver: this.driver?.to_gql() ?? null,
+            passengers: this.passengers.map(p => p.to_gql()),
         }
     }
 
@@ -109,7 +149,7 @@ export default class Mission_Internal {
         return new Mission_Internal(
             m.id,
             new Date(m.startDate),
-            m.endDate ? new Date(m.endDate) : null
+            m.endDate ? new Date(m.endDate) : null,
         )
     }
 
@@ -132,7 +172,7 @@ export default class Mission_Internal {
 
         const missions = await prisma.mission.findMany({
             where: {
-                id: params.id ? { gte: parseInt(params.id) } : undefined,
+                id: params.id ? parseInt(params.id) : undefined,
                 start_date: params.date_earlier_than ? { lte: new Date(params.date_earlier_than) } : undefined,
                 end_date: params.date_later_than ? { gte: new Date(params.date_later_than) } : undefined,
             }

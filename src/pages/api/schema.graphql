@@ -5,8 +5,20 @@ type Mission {
   startDate: String!
   endDate: String!
 
+  type: String!
+  passengers: [Passenger]
+
   locationSteps(index: ID): [Location]
   contractor: Contractor
+  driver: Driver
+}
+
+type Passenger {
+  id: ID!
+  name: String
+  email: String
+  phone: String
+  informations: String
 }
 
 type Location {
@@ -22,9 +34,20 @@ type Contractor {
   phone: String
 }
 
+type Driver {
+  id: ID!
+  name: String
+  email: String
+  phone: String
+}
+
 type Query {
 
   missions(id: ID, status: String, date_later_than: String, date_earlier_than: String): [Mission]
+  allIncomingMissions: [Mission]
+
+  passengers(id: ID, name: String): [Passenger]
+  passenger(id: ID!): Passenger
 
   location(name: String!): Location
 }

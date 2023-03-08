@@ -8,27 +8,36 @@ const { readFileSync } = fs;
 import { Location, QueryLocationArgs, Resolvers } from '@/generated/graphql';
 import Mission_Internal from '@/classes/mission';
 import { location_from_name } from '@/core/maps';
+import Passenger_Internal from '@/classes/passenger';
 
 const resolvers : Resolvers = {
 
 	// We can override some fields of the generated type definitions
 	...Mission_Internal.GqlResolvers,
+	...Passenger_Internal.GqlResolvers,
 
 	Query: {
 		...Mission_Internal.GqlQueries,
-
+		...Passenger_Internal.GqlQueries,
+		
 		location: async (_:any, param: QueryLocationArgs): Promise<Location> => location_from_name(param.name),
 	},
 
 	Mutation: {
 		...Mission_Internal.GqlMutations,
+		
 	}
 
 };
 
 const server = new ApolloServer<BaseContext>({
 	resolvers,
-	typeDefs: readFileSync('./src/pages/api/schema.graphql', 'utf8')
+	typeDefs: readFileSync('./src/pages/api/schema.graphql', 'utf8'),
+	
 });
 
-export default startServerAndCreateNextHandler(server);
+export default startServerAndCreateNextHandler(server, {
+	context: async (request, response) => {
+		return {auth:"authorized"};
+	}
+});

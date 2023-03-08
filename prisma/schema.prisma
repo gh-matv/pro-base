@@ -241,6 +241,8 @@ model Mission {
   start_date DateTime  @default(now())
   end_date   DateTime? @default(now())
 
+  type String @default("")
+
   // The list of all locations of the mission
   location_steps MissionLocationStep[]
   
